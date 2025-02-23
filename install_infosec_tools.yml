@@ -11,6 +11,15 @@
         update_cache: yes
         upgrade: yes
         force_apt_get: yes
+        default_release: ubuntu
+        dpkg_options: 'force-confdef,force-confold'
+        allow_downgrades: yes
+        
+    - name: Update and Upgrade APT with Downgrade Allowance
+      ansible.builtin.shell:
+        cmd: apt-get update && apt-get upgrade -y --allow-downgrades
+        executable: /bin/bash
+
 
     - name: Add Kali Rolling Repository if not present
       ansible.builtin.lineinfile:
