@@ -48,8 +48,11 @@
       executable: /bin/bash
 
     - name: Run CEWL in Docker
-      ansible.builtin.command:
-        cmd: docker run -it --rm -v "${PWD}:/host" ghcr.io/digininja/cewl
+  ansible.builtin.command:
+    cmd: docker run -it --rm -v "${PWD}:/host" ghcr.io/digininja/cewl
+    args:
+      chdir: "{{ ansible_env.HOME }}/python-env"
+      creates: "{{ ansible_env.HOME }}/python-env/cewl"
 
     - name: Add Sublime Text Repository Key
       ansible.builtin.shell:
