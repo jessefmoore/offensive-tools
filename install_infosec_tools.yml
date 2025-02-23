@@ -117,25 +117,29 @@
         cmd: docker pull bcsecurity/empire:latest
       when: empire_image_result.stdout == ""
 
+    - name: Check if Responder repository exists
+      ansible.builtin.stat:
+        path: /opt/Responder
+      register: responder_repo_status
+
     - name: Clone Responder Repository into /opt if not present
       ansible.builtin.git:
         repo: https://github.com/lgandx/Responder.git
         dest: /opt/Responder
         version: master
-      register: responder_clone
-      when: not responder_clone is defined or not responder_clone.changed
+      when: not responder_repo_status.stat.exists
+
+    - name: Check if Sublime Text GPG Key exists
+      ansible.builtin.stat:
+        path: /etc/apt/trusted.gpg.d/sublimehq-archive.gpg
+      register: sublime_gpg_key
 
     - name: Download Sublime Text Repository Key if not present
       ansible.builtin.get_url:
         url: https://download.sublimetext.com/sublimehq-pub.gpg
         dest: /tmp/sublimehq-pub.gpg
         mode: '0644'
-      register: sublime_key_download
-
-    - name: Check if Sublime Text GPG Key exists
-      ansible.builtin.stat:
-        path: /etc/apt/trusted.gpg.d/sublimehq-archive.gpg
-      register: sublime_gpg_key
+      when: not sublime_gpg_key.stat.exists
 
     - name: Convert Sublime Text GPG Key to Binary Format if not present
       ansible.builtin.command:
@@ -156,12 +160,25 @@
     - name: Update APT Cache After Adding Sublime Repo if needed
       ansible.builtin.apt:
         update_cache: yes
-      when: sublime_key_download.changed or sublime_repo_file.changed
+      when: not sublime_repo_file.stat.exists
+
+    - name: Check if Sublime Text is installed
+      ansible.builtin.shell:
+        cmd: dpkg -l | grep sublime-text
+      register: sublime_text_installed
+      changed_when: false
+      failed_when: false
 
     - name: Install Sublime Text if not present
       ansible.builtin.apt:
         name: sublime-text
         state: present
+      when: sublime_text_installed.rc != 0
+
+    - name: Check if Metasploit is installed
+      ansible.builtin.stat:
+        path: /usr/bin/msfconsole
+      register: metasploit_installed
 
     - name: Install Metasploit if not already installed
       ansible.builtin.shell:
@@ -171,3 +188,4 @@
           ./msfinstall
         chdir: "/tmp"
         creates: "/usr/bin/msfconsole"
+      when: not metasploit_installed.stat.exists
