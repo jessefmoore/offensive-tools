@@ -6,11 +6,13 @@
     ansible_python_interpreter: /usr/bin/python3
 
   tasks:
-    - name: Update and Upgrade APT
+    - name: Update and Upgrade APT if not already done
       ansible.builtin.apt:
         update_cache: yes
         upgrade: yes
         force_apt_get: yes
+      register: apt_update_result
+      changed_when: apt_update_result is changed
 
     - name: Add Kali Rolling Repository if not present
       ansible.builtin.lineinfile:
@@ -18,15 +20,16 @@
         line: "deb http://http.kali.org/kali kali-rolling main contrib non-free"
         state: present
         insertafter: EOF
+      register: kali_repo_added
 
-    - name: Add Kali GPG Key
+    - name: Add Kali GPG Key if not already added
       ansible.builtin.shell:
-        cmd: wget -q -O - https://archive.kali.org/archive-key.asc | gpg --dearmor -o /etc/apt/trusted>
+        cmd: wget -q -O - https://archive.kali.org/archive-key.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/kali-archive-keyring.gpg
         executable: /bin/bash
       args:
         creates: /etc/apt/trusted.gpg.d/kali-archive-keyring.gpg
 
-    - name: Pin Kali Packages to Prevent Ubuntu Breakage
+    - name: Pin Kali Packages to Prevent Ubuntu Breakage if not pinned
       ansible.builtin.copy:
         dest: /etc/apt/preferences.d/kali.pref
         content: |
@@ -34,18 +37,20 @@
           Pin: release a=kali-rolling
           Pin-Priority: 50
         mode: '0644'
+      register: kali_pinned
 
-    - name: Update APT After Adding Kali Repo
+    - name: Update APT After Adding Kali Repo if needed
       ansible.builtin.apt:
         update_cache: yes
+      when: kali_repo_added.changed or kali_pinned.changed
 
-    - name: Install Kali Tools (Netexec)
+    - name: Install Kali Tools (Netexec) if not present
       ansible.builtin.apt:
         name:
           - netexec
         state: present
 
-    - name: Install required packages
+    - name: Install required packages if not present
       ansible.builtin.apt:
         name:
           - virtualenv
@@ -59,24 +64,25 @@
           - git
         state: present
 
-    - name: Create Python Virtual Environment Directory
+    - name: Create Python Virtual Environment Directory if not exists
       ansible.builtin.file:
         path: "{{ ansible_env.HOME }}/python-env"
         state: directory
         mode: '0755'
 
-    - name: Create Virtual Environment
+    - name: Create Virtual Environment if not exists
       ansible.builtin.command:
         cmd: virtualenv pip
         chdir: "{{ ansible_env.HOME }}/python-env"
       args:
         creates: "{{ ansible_env.HOME }}/python-env/pip/bin/activate"
 
-    - name: Activate Virtual Environment
+    - name: Activate Virtual Environment if not already activated
       ansible.builtin.shell:
         cmd: source pip/bin/activate
         chdir: "{{ ansible_env.HOME }}/python-env"
         executable: /bin/bash
+      when: not ansible_env.VIRTUAL_ENV is defined
 
     - name: Check if CEWL Docker image exists
       ansible.builtin.command:
@@ -111,17 +117,20 @@
         cmd: docker pull bcsecurity/empire:latest
       when: empire_image_result.stdout == ""
 
-    - name: Clone Responder Repository into /opt
+    - name: Clone Responder Repository into /opt if not present
       ansible.builtin.git:
         repo: https://github.com/lgandx/Responder.git
         dest: /opt/Responder
         version: master
+      register: responder_clone
+      when: not responder_clone is defined or not responder_clone.changed
 
-    - name: Download Sublime Text Repository Key
+    - name: Download Sublime Text Repository Key if not present
       ansible.builtin.get_url:
         url: https://download.sublimetext.com/sublimehq-pub.gpg
         dest: /tmp/sublimehq-pub.gpg
         mode: '0644'
+      register: sublime_key_download
 
     - name: Check if Sublime Text GPG Key exists
       ansible.builtin.stat:
@@ -140,23 +149,24 @@
 
     - name: Add Sublime Text Repository if not present
       ansible.builtin.shell:
-        cmd: echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/su>
+        cmd: echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
         executable: /bin/bash
       when: not sublime_repo_file.stat.exists
 
-    - name: Update APT Cache After Adding Sublime Repo
+    - name: Update APT Cache After Adding Sublime Repo if needed
       ansible.builtin.apt:
         update_cache: yes
+      when: sublime_key_download.changed or sublime_repo_file.changed
 
-    - name: Install Sublime Text
+    - name: Install Sublime Text if not present
       ansible.builtin.apt:
         name: sublime-text
         state: present
 
-    - name: Install Metasploit
+    - name: Install Metasploit if not already installed
       ansible.builtin.shell:
         cmd: |
-          curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/met>
+          curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && \\
           chmod 755 msfinstall && \\
           ./msfinstall
         chdir: "/tmp"
