@@ -2,8 +2,6 @@
 - name: Setup Security Tools on Linux
   hosts: all
   become: yes
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Update and Upgrade APT
       ansible.builtin.apt:
@@ -46,13 +44,27 @@
         chdir: "{{ ansible_env.HOME }}/python-env"
         executable: /bin/bash
 
-    - name: Pull CEWL Docker Image
+    - name: Check if CEWL Docker image exists
+      ansible.builtin.command:
+        cmd: docker images -q ghcr.io/digininja/cewl
+      register: cewl_image_result
+      changed_when: false
+
+    - name: Pull CEWL Docker Image if not present
       ansible.builtin.command:
         cmd: docker pull ghcr.io/digininja/cewl
+      when: cewl_image_result.stdout == ""
 
-    - name: Pull Gowitness Docker Image
+    - name: Check if Gowitness Docker image exists
+      ansible.builtin.command:
+        cmd: docker images -q ghcr.io/sensepost/gowitness:latest
+      register: gowitness_image_result
+      changed_when: false
+
+    - name: Pull Gowitness Docker Image if not present
       ansible.builtin.command:
         cmd: docker pull ghcr.io/sensepost/gowitness:latest
+      when: gowitness_image_result.stdout == ""
 
     - name: Clone Responder Repository into /opt
       ansible.builtin.git:
