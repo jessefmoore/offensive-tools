@@ -68,7 +68,7 @@
 
     - name: Convert Sublime Text GPG Key to Binary Format
       ansible.builtin.command:
-        cmd: gpg --dearmor -o /etc/apt/trusted.gpg.d/sublimehq-archive.gpg /tmp/sublimehq-pub.gpg
+        cmd: gpg --yes --dearmor -o /etc/apt/trusted.gpg.d/sublimehq-archive.gpg /tmp/sublimehq-pub.gpg
 
     - name: Add Sublime Text Repository
       ansible.builtin.shell:
