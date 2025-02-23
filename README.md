@@ -3,10 +3,10 @@
 # Ansible Playbook for Security Tools Installation
 
 ## Overview
-This repository contains an Ansible playbook to install various security tools on a Linux system. Additionally, there is a separate script to install Ansible on Debian-based systems before running the playbook.
+This repository contains an Ansible playbook to install various security tools on a Kali Linux system ONLY. Additionally, there is a separate script to install Ansible on Debian (kali)-based systems before running the playbook.
 
 ## Prerequisites
-- A Debian-based Linux system (Ubuntu, Debian, etc.)
+- A Kali that is barebones
 - Internet access to download necessary packages
 - sudo/root privileges
 
