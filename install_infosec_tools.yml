@@ -69,15 +69,15 @@
         cmd: docker pull ghcr.io/sensepost/gowitness:latest
       when: gowitness_image_result.stdout == ""
 
-    - name: Check if BC-Security Empire Docker image exists
+    - name: Check if Empire Docker image exists
       ansible.builtin.command:
-        cmd: docker images -q ghcr.io/bcsecurity/empire:latest
+        cmd: docker images -q bcsecurity/empire:latest
       register: empire_image_result
       changed_when: false
 
     - name: Pull Empire Docker Image if not present
       ansible.builtin.command:
-        cmd: docker pull ghcr.io/bcsecurity/empire:latest
+        cmd: docker pull bcsecurity/empire:latest
       when: empire_image_result.stdout == ""
 
     - name: Clone Responder Repository into /opt
