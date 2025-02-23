@@ -11,10 +11,10 @@
         update_cache: yes
         upgrade: yes
         force_apt_get: yes
-        default_release: ubuntu
+        default_release: noble
         dpkg_options: 'force-confdef,force-confold'
         allow_downgrades: yes
-        
+
     - name: Update and Upgrade APT with Downgrade Allowance
       ansible.builtin.shell:
         cmd: apt-get update && apt-get upgrade -y --allow-downgrades
@@ -48,11 +48,23 @@
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: Install Kali Tools (Netexec)
-      ansible.builtin.apt:
-        name:
-          - netexec
-        state: present
+    - name: Install netexec and dependencies from Kali
+      ansible.builtin.shell:
+       cmd: |
+         apt-get update
+         apt-get install -y --allow-downgrades --allow-change-held-packages \
+         python3-aardwolf python3-aioconsole python3-aiosqlite python3-impacket \
+         python3-libnmap python3-paramiko python3-pyasn1-modules python3-sqlalchemy \
+         python3-termcolor netexec
+      executable: /bin/bash
+
+
+    - name: Install netexec in Python virtual environment
+      ansible.builtin.pip:
+        name: git+https://github.com/Pennyw0rth/NetExec.git
+        virtualenv: "{{ ansible_env.HOME }}/python-env/pip"
+        virtualenv_command: virtualenv
+
 
     - name: Install required packages
       ansible.builtin.apt:
