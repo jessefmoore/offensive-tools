@@ -39,10 +39,9 @@
 
     - name: Activate Virtual Environment
       ansible.builtin.shell:
-        cmd: bash -c "source pip/bin/activate"
-        chdir: "{{ ansible_env.HOME }}/python-env"
-        args:
-          executable: /bin/bash
+       cmd: source pip/bin/activate
+       chdir: "{{ ansible_env.HOME }}/python-env"
+       executable: /bin/bash
 
     - name: Pull CEWL Docker Image
       ansible.builtin.command:
