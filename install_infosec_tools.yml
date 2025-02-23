@@ -12,11 +12,43 @@
         upgrade: yes
         force_apt_get: yes
 
+    - name: Add Kali Rolling Repository if not present
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list
+        line: "deb http://http.kali.org/kali kali-rolling main contrib non-free"
+        state: present
+        insertafter: EOF
+
+    - name: Add Kali GPG Key
+      ansible.builtin.shell:
+        cmd: wget -q -O - https://archive.kali.org/archive-key.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/kali-archive-keyring.gpg
+        executable: /bin/bash
+      args:
+        creates: /etc/apt/trusted.gpg.d/kali-archive-keyring.gpg
+
+    - name: Pin Kali Packages to Prevent Ubuntu Breakage
+      ansible.builtin.copy:
+        dest: /etc/apt/preferences.d/kali.pref
+        content: |
+          Package: *
+          Pin: release a=kali-rolling
+          Pin-Priority: 50
+        mode: '0644'
+
+    - name: Update APT After Adding Kali Repo
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Kali Tools (Netexec)
+      ansible.builtin.apt:
+        name:
+          - netexec
+        state: present
+
     - name: Install required packages
       ansible.builtin.apt:
         name:
           - ansible
-          - netexec
           - virtualenv
           - powershell-empire
           - hydra
