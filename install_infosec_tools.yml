@@ -20,7 +20,6 @@
         cmd: apt-get update && apt-get upgrade -y --allow-downgrades
         executable: /bin/bash
 
-
     - name: Add Kali Rolling Repository if not present
       ansible.builtin.lineinfile:
         path: /etc/apt/sources.list
@@ -48,16 +47,16 @@
       ansible.builtin.apt:
         update_cache: yes
 
+    - name: Ensure pip and venv are installed
+      ansible.builtin.apt:
+        name:
+          - python3-pip
+          - python3-venv
+        state: present
 
-    - name: Create Python Virtual Environment Directory
-      ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/python-env"
-        state: directory
-        mode: '0755'
-
-    - name: Create Virtual Environment
+    - name: Create Python Virtual Environment using venv
       ansible.builtin.command:
-        cmd: virtualenv pip
+        cmd: python3 -m venv pip
         chdir: "{{ ansible_env.HOME }}/python-env"
       args:
         creates: "{{ ansible_env.HOME }}/python-env/pip/bin/activate"
@@ -66,13 +65,11 @@
       ansible.builtin.pip:
         name: git+https://github.com/Pennyw0rth/NetExec.git
         virtualenv: "{{ ansible_env.HOME }}/python-env/pip"
-        virtualenv_command: virtualenv
 
     - name: Install required packages
       ansible.builtin.apt:
         name:
           - ansible
-          - virtualenv
           - powershell-empire
           - hydra
           - burpsuite
