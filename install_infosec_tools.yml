@@ -22,6 +22,7 @@
           - nikto
           - gobuster
           - docker.io
+          - git
         state: present
 
     - name: Create Python Virtual Environment Directory
@@ -46,6 +47,16 @@
     - name: Pull CEWL Docker Image
       ansible.builtin.command:
         cmd: docker pull ghcr.io/digininja/cewl
+
+    - name: Pull Gowitness Docker Image
+      ansible.builtin.command:
+        cmd: docker pull ghcr.io/sensepost/gowitness:latest
+
+    - name: Clone Responder Repository into /opt
+      ansible.builtin.git:
+        repo: https://github.com/lgandx/Responder.git
+        dest: /opt/Responder
+        version: master
 
     - name: Download Sublime Text Repository Key
       ansible.builtin.get_url:
