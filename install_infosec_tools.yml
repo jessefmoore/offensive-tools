@@ -51,9 +51,11 @@
       ansible.builtin.shell:
         cmd: wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg
 
-    - name: Add Sublime Text Repository
+    - name: Add Sublime Text Repository Key
       ansible.builtin.shell:
-        cmd: echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
+        cmd: |
+          wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/sublimehq-archive.gpg
+        executable: /bin/bash
 
     - name: Update APT Cache After Adding Sublime Repo
       ansible.builtin.apt:
