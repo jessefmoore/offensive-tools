@@ -49,12 +49,24 @@
         update_cache: yes
 
 
+    - name: Create Python Virtual Environment Directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/python-env"
+        state: directory
+        mode: '0755'
+
+    - name: Create Virtual Environment
+      ansible.builtin.command:
+        cmd: virtualenv pip
+        chdir: "{{ ansible_env.HOME }}/python-env"
+      args:
+        creates: "{{ ansible_env.HOME }}/python-env/pip/bin/activate"
+
     - name: Install netexec in Python virtual environment
       ansible.builtin.pip:
         name: git+https://github.com/Pennyw0rth/NetExec.git
         virtualenv: "{{ ansible_env.HOME }}/python-env/pip"
         virtualenv_command: virtualenv
-
 
     - name: Install required packages
       ansible.builtin.apt:
@@ -70,25 +82,6 @@
           - docker.io
           - git
         state: present
-
-    - name: Create Python Virtual Environment Directory
-      ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/python-env"
-        state: directory
-        mode: '0755'
-
-    - name: Create Virtual Environment
-      ansible.builtin.command:
-        cmd: virtualenv pip
-        chdir: "{{ ansible_env.HOME }}/python-env"
-      args:
-        creates: "{{ ansible_env.HOME }}/python-env/pip/bin/activate"
-
-    - name: Activate Virtual Environment
-      ansible.builtin.shell:
-        cmd: source pip/bin/activate
-        chdir: "{{ ansible_env.HOME }}/python-env"
-        executable: /bin/bash
 
     - name: Check if CEWL Docker image exists
       ansible.builtin.command:
