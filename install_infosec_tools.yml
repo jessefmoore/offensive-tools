@@ -48,16 +48,6 @@
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: Install netexec and dependencies from Kali
-      ansible.builtin.shell:
-       cmd: |
-         apt-get update
-         apt-get install -y --allow-downgrades --allow-change-held-packages \
-         python3-aardwolf python3-aioconsole python3-aiosqlite python3-impacket \
-         python3-libnmap python3-paramiko python3-pyasn1-modules python3-sqlalchemy \
-         python3-termcolor netexec
-      executable: /bin/bash
-
 
     - name: Install netexec in Python virtual environment
       ansible.builtin.pip:
