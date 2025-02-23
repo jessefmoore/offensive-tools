@@ -29,15 +29,15 @@
       args:
         creates: /etc/apt/trusted.gpg.d/kali-archive-keyring.gpg
 
-    - name: Pin Kali Packages to Prevent Ubuntu Breakage if not pinned
-      ansible.builtin.copy:
-        dest: /etc/apt/preferences.d/kali.pref
-        content: |
-          Package: *
-          Pin: release a=kali-rolling
-          Pin-Priority: 50
-        mode: '0644'
-      register: kali_pinned
+#    - name: Pin Kali Packages to Prevent Ubuntu Breakage if not pinned
+#      ansible.builtin.copy:
+#        dest: /etc/apt/preferences.d/kali.pref
+#        content: |
+#          Package: *
+#          Pin: release a=kali-rolling
+#          Pin-Priority: 50
+#        mode: '0644'
+#      register: kali_pinned
 
     - name: Update APT After Adding Kali Repo if needed
       ansible.builtin.apt:
