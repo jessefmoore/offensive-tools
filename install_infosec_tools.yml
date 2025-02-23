@@ -44,9 +44,9 @@
         args:
           executable: /bin/bash
 
-    - name: Echo CEWL Docker Command
+    - name: Pull CEWL Docker Image
       ansible.builtin.command:
-        cmd: echo "Run the following command manually: docker run -it --rm -v \"${PWD}:/host\" ghcr.io/digininja/cewl"
+        cmd: docker pull ghcr.io/digininja/cewl
 
     - name: Add Sublime Text Repository Key
       ansible.builtin.shell:
