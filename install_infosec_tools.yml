@@ -77,8 +77,6 @@
     - name: Install required packages
       ansible.builtin.apt:
         name:
-          - ansible
-          - powershell-empire
           - hydra
           - burpsuite
           - hashcat
