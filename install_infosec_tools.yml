@@ -78,8 +78,7 @@
       ansible.builtin.apt:
         name:
           - ansible
-          - nmap
-          - net-tools
+          - powershell-empire
           - hydra
           - burpsuite
           - hashcat
