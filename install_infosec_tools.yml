@@ -2,6 +2,9 @@
 - name: Setup Security Tools on Linux
   hosts: all
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
   tasks:
     - name: Update and Upgrade APT
       ansible.builtin.apt:
@@ -78,14 +81,26 @@
         dest: /tmp/sublimehq-pub.gpg
         mode: '0644'
 
-    - name: Convert Sublime Text GPG Key to Binary Format
+    - name: Check if Sublime Text GPG Key exists
+      ansible.builtin.stat:
+        path: /etc/apt/trusted.gpg.d/sublimehq-archive.gpg
+      register: sublime_gpg_key
+
+    - name: Convert Sublime Text GPG Key to Binary Format if not present
       ansible.builtin.command:
         cmd: gpg --yes --dearmor -o /etc/apt/trusted.gpg.d/sublimehq-archive.gpg /tmp/sublimehq-pub.gpg
+      when: not sublime_gpg_key.stat.exists
 
-    - name: Add Sublime Text Repository
+    - name: Check if Sublime Text Repository file exists
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/sublime-text.list
+      register: sublime_repo_file
+
+    - name: Add Sublime Text Repository if not present
       ansible.builtin.shell:
         cmd: echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
         executable: /bin/bash
+      when: not sublime_repo_file.stat.exists
 
     - name: Update APT Cache After Adding Sublime Repo
       ansible.builtin.apt:
