@@ -2,6 +2,8 @@
 - name: Setup Security Tools on Linux
   hosts: all
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Update and Upgrade APT
       ansible.builtin.apt:
