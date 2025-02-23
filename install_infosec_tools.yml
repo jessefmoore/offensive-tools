@@ -1,7 +1,4 @@
 ---
-# This playbook installs security tools on a Linux machine.
-# Author: dfir-jesseee PRCCDC
-# Date: 2025-02-23
 - name: Setup Security Tools on Linux
   hosts: all
   become: yes
@@ -41,18 +38,15 @@
         creates: "{{ ansible_env.HOME }}/python-env/pip/bin/activate"
 
     - name: Activate Virtual Environment
-  ansible.builtin.shell:
-    cmd: bash -c "source pip/bin/activate"
-    chdir: "{{ ansible_env.HOME }}/python-env"
-    args:
-      executable: /bin/bash
+      ansible.builtin.shell:
+        cmd: bash -c "source pip/bin/activate"
+        chdir: "{{ ansible_env.HOME }}/python-env"
+        args:
+          executable: /bin/bash
 
-    - name: Run CEWL in Docker
-  ansible.builtin.command:
-    cmd: docker run -it --rm -v "${PWD}:/host" ghcr.io/digininja/cewl
-    args:
-      chdir: "{{ ansible_env.HOME }}/python-env"
-      creates: "{{ ansible_env.HOME }}/python-env/cewl"
+    - name: Echo CEWL Docker Command
+      ansible.builtin.command:
+        cmd: echo "Run the following command manually: docker run -it --rm -v \"${PWD}:/host\" ghcr.io/digininja/cewl"
 
     - name: Add Sublime Text Repository Key
       ansible.builtin.shell:
