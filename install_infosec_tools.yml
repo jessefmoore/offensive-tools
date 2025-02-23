@@ -61,10 +61,18 @@
       args:
         creates: "{{ ansible_env.HOME }}/python-env/pip/bin/activate"
 
-    - name: Install netexec in Python virtual environment
+    - name: Check if netexec is already installed
+      ansible.builtin.command:
+        cmd: "{{ ansible_env.HOME }}/python-env/pip/bin/netexec --version"
+      register: netexec_check
+      failed_when: false
+      changed_when: false
+
+    - name: Install netexec in Python virtual environment if not present
       ansible.builtin.pip:
         name: git+https://github.com/Pennyw0rth/NetExec.git
         virtualenv: "{{ ansible_env.HOME }}/python-env/pip"
+      when: netexec_check.rc != 0
 
     - name: Install required packages
       ansible.builtin.apt:
