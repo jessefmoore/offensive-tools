@@ -17,7 +17,7 @@ If Ansible is not already installed on your system, you need to run the `install
 1. Open a terminal.
 2. Navigate to the repository directory:
    ```bash
-   cd your-repo-name
+   cd offensive-tools
    ```
 3. Run the installation script:
    ```bash
@@ -35,11 +35,11 @@ Once Ansible is installed, you can run the playbook to install security tools.
 ### Steps to Run the Playbook
 1. Ensure you are in the repository directory:
    ```bash
-   cd your-repo-name
+   cd offensive-tools
    ```
 2. Run the Ansible playbook:
    ```bash
-   ansible-playbook -i "localhost," -c local ansible-playbook.yml
+   ansible-playbook -i "localhost," -c local install_infosec_tools.yml
    ```
 
 ## Notes
@@ -50,7 +50,7 @@ Once Ansible is installed, you can run the playbook to install security tools.
 ## Troubleshooting
 - If you encounter permission issues, try running with `sudo`:
   ```bash
-  sudo ansible-playbook -i "localhost," -c local ansible-playbook.yml
+  sudo ansible-playbook -i "localhost," -c local install_infosec_tools.yml
   ```
 - If an installation fails, check your internet connection and re-run the script.
 
